@@ -1,0 +1,164 @@
+/* Configurações Globais e Paleta de Cores */
+:root {
+    --bg-color: #fdfdfa; /* Um branco-gelo, quase um papel */
+    --text-color: #3d3d3d; /* Cinza escuro para leitura */
+    --primary-green: #2c5b3f; /* Verde escuro, sóbrio e orgânico */
+    --secondary-green: #a3b8a1; /* Verde mais claro para detalhes */
+    --font-heading: 'Lora', serif;
+    --font-body: 'Lato', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+/* Header */
+header {
+    text-align: center;
+    padding: 2rem 0;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 3rem;
+}
+
+header h1 {
+    font-family: var(--font-heading);
+    font-size: 2.8rem;
+    color: var(--primary-green);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+header .slogan {
+    font-family: var(--font-body);
+    font-size: 1.2rem;
+    font-style: italic;
+    color: #666;
+}
+
+/* Seções do Manifesto */
+section {
+    margin-bottom: 3rem;
+}
+
+h2 {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    color: var(--primary-green);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--secondary-green);
+}
+
+h3 {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    color: var(--primary-green);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+p {
+    margin-bottom: 1.2rem;
+    font-size: 1.1rem;
+}
+
+strong {
+    font-weight: 700;
+}
+
+.emphasis {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.4rem;
+    text-align: center;
+    color: var(--primary-green);
+    margin: 2rem 0;
+}
+
+/* Lista de Ações */
+.actions-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.actions-list li {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    padding-left: 2.5rem;
+    position: relative;
+}
+
+.actions-list li::before {
+    content: '🌱';
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+footer p {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+footer .final-call {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-green);
+}
+
+footer .final-hashtag {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #555;
+    margin-top: 1.5rem;
+}
+
+/* Responsividade para Celulares */
+@media (max-width: 768px) {
+    .container {
+        padding: 1.5rem 1rem;
+    }
+
+    header h1 {
+        font-size: 2.2rem;
+    }
+
+    h2 {
+        font-size: 1.8rem;
+    }
+
+    p {
+        font-size: 1rem;
+    }
+}
