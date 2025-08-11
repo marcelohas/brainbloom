@@ -144,6 +144,100 @@ footer .final-hashtag {
     margin-top: 1.5rem;
 }
 
+/* Manifesto Signup Form */
+.manifesto-signup {
+    margin: 2.5rem 0;
+    background: #f9f9f6;
+    padding: 2rem;
+    border-radius: 15px;
+    border: 1px solid #e8e8e5;
+}
+
+.form-title {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    color: var(--primary-green);
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.signup-subtitle {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+    text-align: center;
+}
+
+.manifesto-form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+.form-group label {
+    display: block;
+    font-family: var(--font-body);
+    font-weight: 600;
+    color: var(--primary-green);
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    background: white;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 3px rgba(44, 91, 63, 0.1);
+}
+
+.form-group input::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+.manifesto-btn {
+    background: linear-gradient(135deg, var(--primary-green), #3a6b4f);
+    color: white;
+    border: none;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-family: var(--font-body);
+    font-weight: 700;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(44, 91, 63, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.manifesto-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(44, 91, 63, 0.4);
+    background: linear-gradient(135deg, #3a6b4f, var(--primary-green));
+}
+
+.manifesto-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 10px rgba(44, 91, 63, 0.3);
+}
+
 /* Responsividade para Celulares */
 @media (max-width: 768px) {
     .container {

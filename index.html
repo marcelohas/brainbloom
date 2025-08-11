@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -79,9 +80,102 @@
         <footer>
             <p>Porque o cérebro é solo fértil.</p>
             <p class="final-call">E o futuro é o que a gente cultiva agora.</p>
+            
+            <div class="manifesto-signup">
+                <h3 class="form-title">🌱 Assinar o Manifesto Gratuitamente</h3>
+                <p class="signup-subtitle">Junte-se ao movimento #BrainBloom</p>
+                
+                <form id="manifestoForm" class="manifesto-form">
+                    <div class="form-group">
+                        <label for="nome">Nome:</label>
+                        <input type="text" id="nome" name="nome" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="redeSocial">Rede Social:</label>
+                        <input type="text" id="redeSocial" name="redeSocial" placeholder="@seu_usuario ou link do perfil">
+                    </div>
+                    
+                    <button type="submit" class="manifesto-btn">
+                        Enviar Assinatura
+                    </button>
+                </form>
+            </div>
+            
             <p class="final-hashtag">#BrainBloom</p>
         </footer>
     </div>
+
+    <script>
+        // Inicializa o EmailJS
+        emailjs.init("HR9hR7u0QCa_COjQM");
+        
+        document.getElementById('manifestoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Coleta os dados do formulário
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const redeSocial = document.getElementById('redeSocial').value;
+            
+            // Validação básica
+            if (!nome || !email) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            // Desabilita o botão durante o envio
+            const submitBtn = document.querySelector('.manifesto-btn');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Enviando...';
+            submitBtn.disabled = true;
+            
+            // Parâmetros para o template do email
+            const templateParams = {
+                to_email: 'tresamigos082005@gmail.com',
+                from_name: nome,
+                from_email: email,
+                rede_social: redeSocial || 'Não informado',
+                message: `Nova assinatura do Manifesto #BrainBloom!
+                
+Nome: ${nome}
+Email: ${email}
+Rede Social: ${redeSocial || 'Não informado'}
+
+Data: ${new Date().toLocaleDateString('pt-BR')}
+Hora: ${new Date().toLocaleTimeString('pt-BR')}
+
+Esta pessoa deseja assinar o Manifesto #BrainBloom e fazer parte do movimento por uma internet mais consciente e significativa.`
+            };
+            
+            // Envia o email usando EmailJS
+            emailjs.send('service_j98pu2g', 'service_j98pu2g', templateParams)
+                .then(function(response) {
+                    alert('🌱 Obrigado por assinar o Manifesto #BrainBloom!\n\nSua assinatura foi enviada com sucesso! Em breve você receberá mais informações sobre como participar do movimento.');
+                    document.getElementById('manifestoForm').reset();
+                }, function(error) {
+                    console.error('Erro ao enviar email:', error);
+                    
+                    // Fallback para mailto se o EmailJS falhar
+                    const assunto = encodeURIComponent('Nova Assinatura do Manifesto #BrainBloom');
+                    const corpo = encodeURIComponent(templateParams.message);
+                    const mailtoLink = `mailto:tresamigos082005@gmail.com?subject=${assunto}&body=${corpo}`;
+                    
+                    window.location.href = mailtoLink;
+                    alert('🌱 Seu cliente de email será aberto para enviar sua assinatura.\n\nSe não abrir automaticamente, copie as informações e envie para: tresamigos082005@gmail.com');
+                })
+                .finally(function() {
+                    // Reabilita o botão
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                });
+        });
+    </script>
 
 </body>
 </html>
