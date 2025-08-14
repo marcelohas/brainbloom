@@ -162,24 +162,32 @@
         // Inicializa o EmailJS
         emailjs.init("HR9hR7u0QCa_COjQM");
         
-        // Funcionalidade do botão de assinatura
+        // Funcionalidade do contador de assinatura
         let subscriberCount = 2005;
         
-        document.getElementById('subscribeBtn').addEventListener('click', function() {
-            subscriberCount++;
+        function incrementCounter() {
+            subscriberCount = subscriberCount + 1;
             document.getElementById('countNumber').textContent = subscriberCount;
             document.getElementById('subscriberCount').style.display = 'block';
-            this.style.display = 'none';
+            document.getElementById('subscribeBtn').style.display = 'none';
             
             // Animação de contagem
             const countElement = document.getElementById('countNumber');
             countElement.style.transform = 'scale(1.2)';
-            countElement.style.color = 'var(--primary-green)';
+            countElement.style.color = '#2c5b3f';
             
-            setTimeout(() => {
+            setTimeout(function() {
                 countElement.style.transform = 'scale(1)';
                 countElement.style.color = '#333';
             }, 300);
+        }
+        
+        // Adiciona o evento de clique ao botão
+        document.addEventListener('DOMContentLoaded', function() {
+            const subscribeButton = document.getElementById('subscribeBtn');
+            if (subscribeButton) {
+                subscribeButton.addEventListener('click', incrementCounter);
+            }
         });
         
         document.getElementById('manifestoForm').addEventListener('submit', function(e) {
