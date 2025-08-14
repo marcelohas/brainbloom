@@ -67,13 +67,23 @@
                 <p>E convocamos os <strong>arquitetos do mundo digital:</strong> designers, engenheiros e líderes de tecnologia. Criem plataformas que sirvam à mente, não que a explorem. Projetem ferramentas que promovam o foco, não a fragmentação. Ajudem-nos a transformar cada tela em solo fértil.</p>
                 <p>Juntos, podemos criar um ecossistema que honra o pensamento crítico, a curiosidade, o silêncio fértil e a criatividade que constrói — não que vicia.</p>
                 
+                <div class="subscription-section">
+                    <h3>Assine o Manifesto #BrainBloom</h3>
+                    <p class="subscription-description">Junte-se ao movimento por uma internet mais consciente e significativa.</p>
+                    <button id="subscribeBtn" class="subscribe-btn">🌱 Assinar</button>
+                    <div id="subscriberCount" class="subscriber-count" style="display: none;">
+                        <span class="count-number" id="countNumber">2005</span>
+                        <span class="count-label">assinantes</span>
+                    </div>
+                </div>
+                
                 <h3>Como começar a cultivar?</h3>
                 <ul class="actions-list">
                     <li>Plante com propósito: Use <strong>#BrainBloom</strong> sempre que criar ou compartilhar algo que estimule o pensar, o criar e o sentir.</li>
-                    <li>Pratique a escolha diária: Antes de consumir, pergunte-se: “Isto nutre ou apenas distrai?”.</li>
-                    <li>Cultive o silêncio fértil: Reserve momentos do seu dia sem telas. Deixe o tédio florescer em ideias.</li>
-                    <li>Quando encontrar algum conteúdo BrainRot, use o dislike, diga para o algoritmo que você nao gosta daquele conteúdo.</li>
-                    <li>Busque a conexão real: Troque reações automáticas por mensagens com intenção. Use a tecnologia para conectar, não para isolar.</li>
+                    <li>Cultive o silêncio: Reserve momentos do dia sem telas, sem sons, apenas você e seus pensamentos.</li>
+                    <li>Escolha com consciência: Antes de abrir uma rede social, pergunte-se: "O que estou buscando? Isso vai nutrir minha mente?"</li>
+                    <li>Compartilhe com intenção: Publique apenas o que tem valor real para quem vai ler.</li>
+                    <li>Eduque com amor: Se você é pai, mãe ou educador, seja o exemplo da mudança que quer ver.</li>
                 </ul>
             </section>
         </main>
@@ -82,29 +92,29 @@
             <p>Porque o cérebro é solo fértil.</p>
             <p class="final-call">E o futuro é o que a gente cultiva agora.</p>
             
-            <div class="manifesto-signup">
-                <h3 class="form-title">🌱 Assinar o Manifesto Gratuitamente</h3>
-                <p class="signup-subtitle">Junte-se ao movimento #BrainBloom</p>
+            <div class="supporter-signup">
+                <h3 class="form-title">Torne-se um Apoiador</h3>
+                <p class="signup-subtitle">É gratuito! Apoiadores têm seus contatos incluídos no rodapé da página</p>
                 
                 <form id="manifestoForm" class="manifesto-form">
-                    <div class="form-group">
-                        <label for="nome">Nome:</label>
-                        <input type="text" id="nome" name="nome" required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nome">Nome *</label>
+                            <input type="text" id="nome" name="nome" required placeholder="Seu nome">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" required placeholder="seu@email.com">
+                        </div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" name="email" required>
+                        <label for="redeSocial">Rede Social</label>
+                        <input type="text" id="redeSocial" name="redeSocial" placeholder="LinkedIn, Instagram, etc.">
                     </div>
                     
-                    <div class="form-group">
-                        <label for="redeSocial">Rede Social:</label>
-                        <input type="text" id="redeSocial" name="redeSocial" placeholder="@seu_usuario ou link do perfil">
-                    </div>
-                    
-                    <button type="submit" class="manifesto-btn">
-                        Enviar Assinatura
-                    </button>
+                    <button type="submit" class="manifesto-btn">🤝 Quero Apoiar</button>
                 </form>
             </div>
             
@@ -152,6 +162,26 @@
         // Inicializa o EmailJS
         emailjs.init("HR9hR7u0QCa_COjQM");
         
+        // Funcionalidade do botão de assinatura
+        let subscriberCount = 2005;
+        
+        document.getElementById('subscribeBtn').addEventListener('click', function() {
+            subscriberCount++;
+            document.getElementById('countNumber').textContent = subscriberCount;
+            document.getElementById('subscriberCount').style.display = 'block';
+            this.style.display = 'none';
+            
+            // Animação de contagem
+            const countElement = document.getElementById('countNumber');
+            countElement.style.transform = 'scale(1.2)';
+            countElement.style.color = 'var(--primary-green)';
+            
+            setTimeout(() => {
+                countElement.style.transform = 'scale(1)';
+                countElement.style.color = '#333';
+            }, 300);
+        });
+        
         document.getElementById('manifestoForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -178,7 +208,7 @@
                 from_name: nome,
                 from_email: email,
                 rede_social: redeSocial || 'Não informado',
-                message: `Nova assinatura do Manifesto #BrainBloom!
+                message: `Novo apoiador do Manifesto #BrainBloom!
                 
 Nome: ${nome}
 Email: ${email}
@@ -187,13 +217,13 @@ Rede Social: ${redeSocial || 'Não informado'}
 Data: ${new Date().toLocaleDateString('pt-BR')}
 Hora: ${new Date().toLocaleTimeString('pt-BR')}
 
-Esta pessoa deseja assinar o Manifesto #BrainBloom e fazer parte do movimento por uma internet mais consciente e significativa.`
+Esta pessoa deseja apoiar o Manifesto #BrainBloom. Lembre-se de incluir o contato no rodapé da página conforme prometido.`
             };
             
             // Envia o email usando EmailJS
             emailjs.send('service_j98pu2g', 'service_j98pu2g', templateParams)
                 .then(function(response) {
-                    alert('🌱 Obrigado por assinar o Manifesto #BrainBloom!\n\nSua assinatura foi enviada com sucesso! Em breve você receberá mais informações sobre como participar do movimento.');
+                    alert('🤝 Obrigado por apoiar o Manifesto #BrainBloom!\n\nSeu apoio foi registrado com sucesso! Em breve seu contato será incluído no rodapé da página.');
                     document.getElementById('manifestoForm').reset();
                 }, function(error) {
                     console.error('Erro ao enviar email:', error);
@@ -204,7 +234,7 @@ Esta pessoa deseja assinar o Manifesto #BrainBloom e fazer parte do movimento po
                     const mailtoLink = `mailto:tresamigos082005@gmail.com?subject=${assunto}&body=${corpo}`;
                     
                     window.location.href = mailtoLink;
-                    alert('🌱 Seu cliente de email será aberto para enviar sua assinatura.\n\nSe não abrir automaticamente, copie as informações e envie para: tresamigos082005@gmail.com');
+                    alert('🤝 Seu cliente de email será aberto para registrar seu apoio.\n\nSe não abrir automaticamente, copie as informações e envie para: tresamigos082005@gmail.com');
                 })
                 .finally(function() {
                     // Reabilita o botão

@@ -144,12 +144,86 @@ footer .final-hashtag {
     margin-top: 1.5rem;
 }
 
-/* Manifesto Signup Form */
-.manifesto-signup {
+/* Subscription Section */
+.subscription-section {
+    text-align: center;
     margin: 2.5rem 0;
-    background: #f9f9f6;
     padding: 2rem;
+    background: linear-gradient(135deg, #f9f9f6, #f5f5f2);
     border-radius: 15px;
+    border: 1px solid #e8e8e5;
+}
+
+.subscription-section h3 {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    color: var(--primary-green);
+    margin-bottom: 0.5rem;
+    margin-top: 0;
+}
+
+.subscription-description {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+}
+
+.subscribe-btn {
+    background: linear-gradient(135deg, var(--primary-green), #3a6b4f);
+    color: white;
+    border: none;
+    padding: 1.2rem 3rem;
+    font-size: 1.3rem;
+    font-family: var(--font-body);
+    font-weight: 700;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(44, 91, 63, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 1rem;
+}
+
+.subscribe-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(44, 91, 63, 0.4);
+    background: linear-gradient(135deg, #3a6b4f, var(--primary-green));
+}
+
+.subscriber-count {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+}
+
+.count-number {
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #333;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.count-label {
+    font-size: 1rem;
+    color: #666;
+    font-weight: 500;
+    margin-top: 0.5rem;
+    display: block;
+}
+
+/* Supporter Signup Form */
+.supporter-signup {
+    margin: 2rem 0;
+    background: #f9f9f6;
+    padding: 1.5rem;
+    border-radius: 12px;
     border: 1px solid #e8e8e5;
 }
 
@@ -170,12 +244,19 @@ footer .final-hashtag {
 }
 
 .manifesto-form {
-    max-width: 400px;
+    max-width: 500px;
     margin: 0 auto;
 }
 
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
 .form-group {
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
 }
 
 .form-group label {
@@ -189,11 +270,11 @@ footer .final-hashtag {
 
 .form-group input {
     width: 100%;
-    padding: 0.8rem 1rem;
+    padding: 0.7rem 0.9rem;
     border: 2px solid #e0e0e0;
     border-radius: 8px;
     font-family: var(--font-body);
-    font-size: 1rem;
+    font-size: 0.95rem;
     background: white;
     transition: border-color 0.3s ease;
 }
@@ -213,8 +294,8 @@ footer .final-hashtag {
     background: linear-gradient(135deg, var(--primary-green), #3a6b4f);
     color: white;
     border: none;
-    padding: 1rem 2.5rem;
-    font-size: 1.1rem;
+    padding: 0.9rem 2rem;
+    font-size: 1rem;
     font-family: var(--font-body);
     font-weight: 700;
     border-radius: 50px;
@@ -224,7 +305,7 @@ footer .final-hashtag {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     width: 100%;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
 }
 
 .manifesto-btn:hover {
@@ -378,6 +459,34 @@ footer .final-hashtag {
 
     p {
         font-size: 1rem;
+    }
+    
+    /* Responsividade da seção de assinatura */
+    .subscription-section {
+        padding: 1.5rem 1rem;
+    }
+    
+    .subscription-section h3 {
+        font-size: 1.5rem;
+    }
+    
+    .subscribe-btn {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+    }
+    
+    .count-number {
+        font-size: 2rem;
+    }
+    
+    /* Responsividade do formulário */
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+    }
+    
+    .supporter-signup {
+        padding: 1.2rem;
     }
     
     /* Responsividade da Seção de Apoiadores */
