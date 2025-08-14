@@ -162,12 +162,18 @@
         // Inicializa o EmailJS
         emailjs.init("HR9hR7u0QCa_COjQM");
         
-        // Funcionalidade do contador de assinatura
-        let subscriberCount = 2005;
-        let hasClicked = false;
+        // Funcionalidade do contador de assinatura com persistência
+        let subscriberCount = parseInt(localStorage.getItem('brainbloomCounter')) || 2005;
+        let hasClicked = localStorage.getItem('brainbloomClicked') === 'true';
         
         function incrementCounter() {
             subscriberCount = subscriberCount + 1;
+            
+            // Salva no localStorage
+            localStorage.setItem('brainbloomCounter', subscriberCount);
+            localStorage.setItem('brainbloomClicked', 'true');
+            
+            // Atualiza o display
             document.getElementById('countNumber').textContent = subscriberCount;
             
             // Mostra o contador na primeira vez
@@ -189,8 +195,15 @@
             }, 400);
         }
         
-        // Adiciona o evento de clique ao botão
+        // Inicializa a página
         document.addEventListener('DOMContentLoaded', function() {
+            // Se já foi clicado antes, mostra o contador
+            if (hasClicked) {
+                document.getElementById('countNumber').textContent = subscriberCount;
+                document.getElementById('subscriberCount').style.display = 'block';
+            }
+            
+            // Adiciona evento ao botão
             const subscribeButton = document.getElementById('subscribeBtn');
             if (subscribeButton) {
                 subscribeButton.addEventListener('click', incrementCounter);
