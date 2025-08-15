@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Contador BrainBloom</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #2c5b3f;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        button:hover {
+            background: #1e3f2b;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 Setup Contador BrainBloom</h1>
+        <p>Esta página é para configurar o contador global do manifesto BrainBloom.</p>
+        
+        <button onclick="initializeCounter()">Inicializar Contador (2005)</button>
+        <button onclick="checkCounter()">Verificar Contador Atual</button>
+        <button onclick="resetCounter()">Resetar Contador</button>
+        
+        <div id="status"></div>
+        
+        <h3>Como funciona:</h3>
+        <ul>
+            <li>O contador agora é <strong>global</strong> - funciona para todos os usuários</li>
+            <li>Usa JSONBin.io como backend gratuito</li>
+            <li>Cada clique incrementa o contador para todos</li>
+            <li>Fallback local se o servidor estiver indisponível</li>
+        </ul>
+    </div>
+
+    <script>
+        const COUNTER_API_URL = 'https://api.jsonbin.io/v3/b/677e8c50e41b4d34e46a8c91';
+        const API_KEY = '$2a$10$8vKX9pQrF.mN2tL5wH6yXeZqJ8fR3dP1vC4bN7mA9sE2kF6gH8iJ0';
+        
+        function showStatus(message, isError = false) {
+            const status = document.getElementById('status');
+            status.innerHTML = `<div class="status ${isError ? 'error' : 'success'}">${message}</div>`;
+        }
+        
+        async function initializeCounter() {
+            try {
+                const response = await fetch(COUNTER_API_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'X-Master-Key': API_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        count: 2005,
+                        lastUpdated: new Date().toISOString(),
+                        initialized: true
+                    })
+                });
+                
+                if (response.ok) {
+                    showStatus('✅ Contador inicializado com sucesso! Valor: 2005');
+                } else {
+                    showStatus('❌ Erro ao inicializar contador', true);
+                }
+            } catch (error) {
+                showStatus(`❌ Erro: ${error.message}`, true);
+            }
+        }
+        
+        async function checkCounter() {
+            try {
+                const response = await fetch(COUNTER_API_URL + '/latest', {
+                    method: 'GET',
+                    headers: {
+                        'X-Master-Key': API_KEY,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const count = data.record.count || 'não definido';
+                    const lastUpdated = data.record.lastUpdated || 'nunca';
+                    showStatus(`📊 Contador atual: ${count}<br>Última atualização: ${lastUpdated}`);
+                } else {
+                    showStatus('❌ Erro ao verificar contador', true);
+                }
+            } catch (error) {
+                showStatus(`❌ Erro: ${error.message}`, true);
+            }
+        }
+        
+        async function resetCounter() {
+            if (confirm('Tem certeza que deseja resetar o contador para 2005?')) {
+                await initializeCounter();
+            }
+        }
+    </script>
+</body>
+</html>
