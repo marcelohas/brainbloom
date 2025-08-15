@@ -69,8 +69,9 @@
     </div>
 
     <script>
-        const COUNTER_API_URL = 'https://api.jsonbin.io/v3/b/677e8c50e41b4d34e46a8c91';
-        const API_KEY = '$2a$10$8vKX9pQrF.mN2tL5wH6yXeZqJ8fR3dP1vC4bN7mA9sE2kF6gH8iJ0';
+        const COUNTER_NAMESPACE = 'brainbloom-manifesto';
+        const COUNTER_KEY = 'subscribers';
+        const COUNTER_API_BASE = 'https://api.countapi.xyz';
         
         function showStatus(message, isError = false) {
             const status = document.getElementById('status');
@@ -79,23 +80,18 @@
         
         async function initializeCounter() {
             try {
-                const response = await fetch(COUNTER_API_URL, {
-                    method: 'PUT',
-                    headers: {
-                        'X-Master-Key': API_KEY,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        count: 2005,
-                        lastUpdated: new Date().toISOString(),
-                        initialized: true
-                    })
-                });
+                const response = await fetch(`${COUNTER_API_BASE}/create?namespace=${COUNTER_NAMESPACE}&key=${COUNTER_KEY}&value=2005`);
                 
                 if (response.ok) {
-                    showStatus('✅ Contador inicializado com sucesso! Valor: 2005');
+                    const data = await response.json();
+                    showStatus(`✅ Contador inicializado com sucesso! Valor: ${data.value}`);
                 } else {
-                    showStatus('❌ Erro ao inicializar contador', true);
+                    const data = await response.json();
+                    if (data.error && data.error.includes('already exists')) {
+                        showStatus('⚠️ Contador já existe! Use "Verificar Contador" para ver o valor atual.');
+                    } else {
+                        showStatus('❌ Erro ao inicializar contador', true);
+                    }
                 }
             } catch (error) {
                 showStatus(`❌ Erro: ${error.message}`, true);
@@ -104,19 +100,15 @@
         
         async function checkCounter() {
             try {
-                const response = await fetch(COUNTER_API_URL + '/latest', {
-                    method: 'GET',
-                    headers: {
-                        'X-Master-Key': API_KEY,
-                        'Content-Type': 'application/json'
-                    }
-                });
+                const response = await fetch(`${COUNTER_API_BASE}/get/${COUNTER_NAMESPACE}/${COUNTER_KEY}`);
                 
                 if (response.ok) {
                     const data = await response.json();
-                    const count = data.record.count || 'não definido';
-                    const lastUpdated = data.record.lastUpdated || 'nunca';
-                    showStatus(`📊 Contador atual: ${count}<br>Última atualização: ${lastUpdated}`);
+                    if (data.value !== undefined) {
+                        showStatus(`📊 Contador atual: ${data.value}`);
+                    } else {
+                        showStatus('❌ Contador não encontrado. Clique em "Inicializar" primeiro.', true);
+                    }
                 } else {
                     showStatus('❌ Erro ao verificar contador', true);
                 }
@@ -127,7 +119,19 @@
         
         async function resetCounter() {
             if (confirm('Tem certeza que deseja resetar o contador para 2005?')) {
-                await initializeCounter();
+                try {
+                    // Primeiro tenta definir o valor
+                    const response = await fetch(`${COUNTER_API_BASE}/set/${COUNTER_NAMESPACE}/${COUNTER_KEY}?value=2005`);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        showStatus(`✅ Contador resetado para: ${data.value}`);
+                    } else {
+                        showStatus('❌ Erro ao resetar contador. Tente criar um novo.', true);
+                    }
+                } catch (error) {
+                    showStatus(`❌ Erro: ${error.message}`, true);
+                }
             }
         }
     </script>
