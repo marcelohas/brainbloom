@@ -166,36 +166,37 @@
         let subscriberCount = 0; // Será carregado da API
         let hasClicked = localStorage.getItem('brainbloomClicked') === 'true';
         
-        // API para contador global usando CountAPI (gratuito e sem autenticação)
-        const COUNTER_API_URL = 'https://api.countapi.xyz/hit/brainbloom-manifesto/subscribers';
-        const COUNTER_GET_URL = 'https://api.countapi.xyz/get/brainbloom-manifesto/subscribers';
-        const COUNTER_CREATE_URL = 'https://api.countapi.xyz/create?namespace=brainbloom-manifesto&key=subscribers&value=2005';
+        // Contador global usando API de contador gratuita
+        const COUNTER_API_URL = 'https://api.countapi.xyz';
+        const COUNTER_NAMESPACE = 'brainbloom-manifesto';
+        const COUNTER_KEY = 'subscribers';
+        const INITIAL_COUNT = 2005;
         
-        // Carrega o contador atual do servidor
+        // Carrega o contador global
         async function loadCounter() {
             try {
-                const response = await fetch(COUNTER_GET_URL);
+                // Tenta carregar do CountAPI.xyz
+                const response = await fetch(`${COUNTER_API_URL}/get/${COUNTER_NAMESPACE}/${COUNTER_KEY}`);
                 
                 if (response.ok) {
                     const data = await response.json();
                     if (data.value !== undefined) {
                         subscriberCount = data.value;
                         document.getElementById('countNumber').textContent = subscriberCount;
-                        console.log('✅ Contador carregado da API:', subscriberCount);
+                        console.log('✅ Contador global carregado:', subscriberCount);
                         
-                        // Mostra o contador se já foi clicado antes
                         if (hasClicked) {
                             document.getElementById('subscriberCount').style.display = 'block';
                         }
-                        return; // Sucesso, não precisa criar
+                        return;
                     }
                 }
                 
-                // Se chegou aqui, precisa criar o contador
-                throw new Error('Contador não encontrado');
+                // Se não existe, cria o contador
+                throw new Error('Contador não encontrado, criando...');
                 
             } catch (error) {
-                console.log('⚠️ Tentando criar contador:', error.message);
+                console.log('⚠️ Criando contador:', error.message);
                 await createCounter();
             }
         }
@@ -203,28 +204,36 @@
         // Cria o contador inicial
         async function createCounter() {
             try {
-                const response = await fetch(COUNTER_CREATE_URL);
+                const response = await fetch(`${COUNTER_API_URL}/create?namespace=${COUNTER_NAMESPACE}&key=${COUNTER_KEY}&value=${INITIAL_COUNT}`);
+                
                 if (response.ok) {
                     const data = await response.json();
-                    subscriberCount = data.value || 2005;
-                    document.getElementById('countNumber').textContent = subscriberCount;
-                    console.log('✅ Contador criado:', subscriberCount);
+                    subscriberCount = data.value || INITIAL_COUNT;
+                    console.log('✅ Contador global criado:', subscriberCount);
                 } else {
-                    throw new Error('Falha ao criar contador');
+                    // Se já existe, tenta buscar
+                    const getResponse = await fetch(`${COUNTER_API_URL}/get/${COUNTER_NAMESPACE}/${COUNTER_KEY}`);
+                    if (getResponse.ok) {
+                        const getData = await getResponse.json();
+                        subscriberCount = getData.value || INITIAL_COUNT;
+                        console.log('✅ Contador existente encontrado:', subscriberCount);
+                    } else {
+                        throw new Error('Falha ao criar/buscar contador');
+                    }
                 }
             } catch (error) {
-                console.log('❌ Erro ao criar contador:', error.message);
-                subscriberCount = 2005;
-                document.getElementById('countNumber').textContent = subscriberCount;
+                console.log('❌ Erro na API, usando fallback:', error.message);
+                subscriberCount = INITIAL_COUNT;
             }
             
-            // Mostra o contador se já foi clicado antes
+            document.getElementById('countNumber').textContent = subscriberCount;
+            
             if (hasClicked) {
                 document.getElementById('subscriberCount').style.display = 'block';
             }
         }
         
-        // Incrementa o contador no servidor
+        // Incrementa o contador globalmente
         async function incrementCounter() {
             try {
                 // Animação de contagem
@@ -240,20 +249,23 @@
                     localStorage.setItem('brainbloomClicked', 'true');
                 }
                 
-                // Incrementa no servidor (CountAPI incrementa automaticamente)
-                const response = await fetch(COUNTER_API_URL);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    subscriberCount = data.value;
-                    document.getElementById('countNumber').textContent = subscriberCount;
-                    console.log('✅ Contador global atualizado:', subscriberCount);
-                } else {
-                    // Fallback: incrementa localmente
+                // Incrementa no servidor global
+                try {
+                    const response = await fetch(`${COUNTER_API_URL}/hit/${COUNTER_NAMESPACE}/${COUNTER_KEY}`);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        subscriberCount = data.value;
+                        console.log('✅ Contador global incrementado:', subscriberCount);
+                    } else {
+                        throw new Error('API não respondeu');
+                    }
+                } catch (apiError) {
+                    console.log('⚠️ API offline, incrementando localmente:', apiError.message);
                     subscriberCount = subscriberCount + 1;
-                    document.getElementById('countNumber').textContent = subscriberCount;
-                    console.log('⚠️ Usando contador local:', subscriberCount);
                 }
+                
+                document.getElementById('countNumber').textContent = subscriberCount;
                 
                 setTimeout(function() {
                     countElement.style.transform = 'scale(1)';
@@ -262,12 +274,10 @@
                 }, 400);
                 
             } catch (error) {
-                console.log('❌ Erro ao incrementar contador:', error.message);
-                // Fallback: incrementa localmente
+                console.log('❌ Erro ao incrementar:', error.message);
                 subscriberCount = subscriberCount + 1;
                 document.getElementById('countNumber').textContent = subscriberCount;
                 
-                // Animação mesmo com erro
                 const countElement = document.getElementById('countNumber');
                 setTimeout(function() {
                     countElement.style.transform = 'scale(1)';
