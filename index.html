@@ -72,7 +72,7 @@
                     <p class="subscription-description">Junte-se ao movimento por uma internet mais consciente e significativa.</p>
                     <button id="subscribeBtn" class="subscribe-btn">🌱 Assinar</button>
                     <div id="subscriberCount" class="subscriber-count" style="display: none;">
-                        <span class="count-number" id="countNumber">2005</span>
+                        <span class="count-number" id="countNumber">0</span>
                         <span class="count-label">assinantes</span>
                     </div>
                 </div>
@@ -163,7 +163,7 @@
         emailjs.init("HR9hR7u0QCa_COjQM");
         
         // Funcionalidade do contador global de assinatura
-        let subscriberCount = 2005;
+        let subscriberCount = 0; // Será carregado da API
         let hasClicked = localStorage.getItem('brainbloomClicked') === 'true';
         
         // API para contador global usando CountAPI (gratuito e sem autenticação)
@@ -181,19 +181,19 @@
                     if (data.value !== undefined) {
                         subscriberCount = data.value;
                         document.getElementById('countNumber').textContent = subscriberCount;
-                        console.log('✅ Contador carregado:', subscriberCount);
-                    } else {
-                        // Se não existe, cria com valor inicial
-                        await createCounter();
+                        console.log('✅ Contador carregado da API:', subscriberCount);
+                        
+                        // Mostra o contador se já foi clicado antes
+                        if (hasClicked) {
+                            document.getElementById('subscriberCount').style.display = 'block';
+                        }
+                        return; // Sucesso, não precisa criar
                     }
-                } else {
-                    throw new Error('Contador não encontrado, criando...');
                 }
                 
-                // Mostra o contador se já foi clicado antes
-                if (hasClicked) {
-                    document.getElementById('subscriberCount').style.display = 'block';
-                }
+                // Se chegou aqui, precisa criar o contador
+                throw new Error('Contador não encontrado');
+                
             } catch (error) {
                 console.log('⚠️ Tentando criar contador:', error.message);
                 await createCounter();
