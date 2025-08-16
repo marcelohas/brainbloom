@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Botão Assinar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .debug-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .counter-display {
+            margin: 30px 0;
+            padding: 20px;
+            background: #e8f5e8;
+            border-radius: 8px;
+        }
+        .count-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #2c5b3f;
+        }
+        .count-label {
+            font-size: 1.2em;
+            color: #666;
+        }
+        .subscribe-btn {
+            background: #2c5b3f;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        .subscribe-btn:hover {
+            background: #1e3f2a;
+        }
+        .debug-info {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 5px;
+            text-align: left;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log {
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+        .log.success { background: #d4edda; color: #155724; }
+        .log.warning { background: #fff3cd; color: #856404; }
+        .log.error { background: #f8d7da; color: #721c24; }
+        .log.info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>🐛 Debug - Botão Assinar</h1>
+        <p>Esta página testa apenas o funcionamento básico do botão.</p>
+        
+        <div class="counter-display">
+            <div class="count-number" id="countNumber">2005</div>
+            <div class="count-label">assinantes</div>
+        </div>
+        
+        <button id="subscribeBtn" class="subscribe-btn">🌱 Assinar</button>
+        
+        <div class="debug-info">
+            <h3>🔍 Informações de Debug:</h3>
+            <div id="debugContainer"></div>
+        </div>
+        
+        <div class="debug-info">
+            <h3>📋 Logs do Console:</h3>
+            <div id="logContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de debug para o botão
+        class DebugCounter {
+            constructor() {
+                this.count = 2005;
+                this.clickCount = 0;
+                this.init();
+            }
+            
+            init() {
+                this.log('🚀 Inicializando sistema de debug...');
+                this.setupEventListeners();
+                this.displayCounter();
+                this.log('✅ Sistema inicializado com sucesso', 'success');
+            }
+            
+            setupEventListeners() {
+                this.log('🔧 Configurando event listeners...');
+                
+                const subscribeButton = document.getElementById('subscribeBtn');
+                if (subscribeButton) {
+                    this.log('✅ Botão subscribeBtn encontrado', 'success');
+                    
+                    // Remove listeners antigos
+                    subscribeButton.removeEventListener('click', this.boundIncrement);
+                    
+                    // Cria novo listener
+                    this.boundIncrement = () => this.increment();
+                    subscribeButton.addEventListener('click', this.boundIncrement);
+                    
+                    this.log('✅ Event listener configurado com sucesso', 'success');
+                    
+                    // Testa se o botão está clicável
+                    this.log('🧪 Testando se o botão está clicável...');
+                    if (subscribeButton.disabled) {
+                        this.log('❌ Botão está DESABILITADO!', 'error');
+                    } else {
+                        this.log('✅ Botão está habilitado e clicável', 'success');
+                    }
+                    
+                } else {
+                    this.log('❌ ERRO: Botão subscribeBtn NÃO encontrado!', 'error');
+                }
+            }
+            
+            increment() {
+                this.clickCount++;
+                this.log(`🚀 CLIQUE #${this.clickCount} detectado!`, 'success');
+                
+                try {
+                    // Animação visual
+                    this.animateIncrement();
+                    
+                    // Incrementa contador
+                    this.count++;
+                    this.log(`📈 Contador incrementado para: ${this.count}`, 'info');
+                    
+                    // Atualiza display
+                    this.displayCounter();
+                    
+                    this.log('✅ Incremento concluído com sucesso!', 'success');
+                    
+                } catch (error) {
+                    this.log(`❌ Erro ao incrementar: ${error.message}`, 'error');
+                    console.error('Erro completo:', error);
+                }
+            }
+            
+            animateIncrement() {
+                const countElement = document.getElementById('countNumber');
+                if (countElement) {
+                    countElement.style.transform = 'scale(1.3)';
+                    countElement.style.color = '#2c5b3f';
+                    
+                    setTimeout(() => {
+                        countElement.style.transform = 'scale(1)';
+                        countElement.style.color = '#2c5b3f';
+                    }, 400);
+                }
+            }
+            
+            displayCounter() {
+                const countElement = document.getElementById('countNumber');
+                if (countElement) {
+                    countElement.textContent = this.count.toLocaleString('pt-BR');
+                }
+            }
+            
+            log(message, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                const logMessage = `[${timestamp}] ${message}`;
+                
+                // Log no console
+                console.log(logMessage);
+                
+                // Log na tela
+                const container = document.getElementById('logContainer');
+                if (container) {
+                    const logDiv = document.createElement('div');
+                    logDiv.className = `log ${type}`;
+                    logDiv.textContent = logMessage;
+                    
+                    // Remove logs antigos se houver muitos
+                    if (container.children.length > 10) {
+                        container.removeChild(container.firstChild);
+                    }
+                    
+                    container.appendChild(logDiv);
+                    container.scrollTop = container.scrollHeight;
+                }
+                
+                // Atualiza informações de debug
+                this.updateDebugInfo();
+            }
+            
+            updateDebugInfo() {
+                const container = document.getElementById('debugContainer');
+                if (container) {
+                    container.innerHTML = `
+                        <strong>Contador atual:</strong> ${this.count}<br>
+                        <strong>Cliques detectados:</strong> ${this.clickCount}<br>
+                        <strong>Botão encontrado:</strong> ${document.getElementById('subscribeBtn') ? '✅ Sim' : '❌ Não'}<br>
+                        <strong>Botão habilitado:</strong> ${document.getElementById('subscribeBtn')?.disabled ? '❌ Não' : '✅ Sim'}<br>
+                        <strong>Timestamp:</strong> ${new Date().toLocaleString()}
+                    `;
+                }
+            }
+        }
+        
+        // Inicializa quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Página carregada, inicializando debug...');
+            const debugCounter = new DebugCounter();
+        });
+        
+        // Intercepta erros globais
+        window.addEventListener('error', function(e) {
+            console.error('❌ Erro global detectado:', e.error);
+            const logContainer = document.getElementById('logContainer');
+            if (logContainer) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'log error';
+                errorDiv.textContent = `[ERRO GLOBAL] ${e.error?.message || e.message}`;
+                logContainer.appendChild(errorDiv);
+            }
+        });
+    </script>
+</body>
+</html>
