@@ -187,26 +187,30 @@
             
             async init() {
                 try {
-                    // Inicializa Firebase
-                    await this.initFirebase();
-                    
-                    // Carrega estado local
+                    // Carrega estado local primeiro (sempre funciona)
                     this.loadLocalState();
                     
-                    // Configura listeners
+                    // Configura listeners (sempre funciona)
                     this.setupEventListeners();
                     
-                    // Sincroniza com Firebase
-                    await this.syncWithFirebase();
-                    
-                    // Exibe contador
+                    // Exibe contador (sempre funciona)
                     this.displayCounter();
                     
-                    console.log('✅ Sistema inicializado com sucesso');
+                    console.log('✅ Sistema básico inicializado');
+                    
+                    // Tenta inicializar Firebase (opcional)
+                    try {
+                        await this.initFirebase();
+                        await this.syncWithFirebase();
+                        console.log('✅ Firebase inicializado com sucesso');
+                    } catch (firebaseError) {
+                        console.log('⚠️ Firebase não disponível, usando modo offline:', firebaseError.message);
+                        // Sistema continua funcionando offline
+                    }
                     
                 } catch (error) {
-                    console.log('⚠️ Erro na inicialização:', error.message);
-                    // Fallback para modo offline
+                    console.log('❌ Erro crítico na inicialização:', error.message);
+                    // Fallback de emergência
                     this.loadLocalState();
                     this.setupEventListeners();
                     this.displayCounter();
@@ -320,12 +324,15 @@
             }
             
             async increment() {
+                console.log('🚀 Função increment() chamada!');
+                
                 try {
                     // Animação visual
                     this.animateIncrement();
                     
                     // Incrementa contador local
                     this.count++;
+                    console.log('📈 Contador incrementado para:', this.count);
                     
                     // Salva localmente
                     this.saveLocalState();
@@ -335,6 +342,7 @@
                         this.hasClicked = true;
                         localStorage.setItem(this.clickKey, 'true');
                         this.showCounter();
+                        console.log('🎯 Primeira vez clicando!');
                     }
                     
                     // Atualiza display
@@ -342,19 +350,29 @@
                     
                     // Sincroniza com Firebase (atualiza para todos os usuários)
                     if (this.counterRef) {
-                        await window.firebaseSet(this.counterRef, {
-                            count: this.count,
-                            lastUpdate: Date.now(),
-                            updatedBy: this.generateUserId()
-                        });
-                        console.log('✅ Contador sincronizado globalmente:', this.count);
+                        try {
+                            await window.firebaseSet(this.counterRef, {
+                                count: this.count,
+                                lastUpdate: Date.now(),
+                                updatedBy: this.generateUserId()
+                            });
+                            console.log('✅ Contador sincronizado globalmente:', this.count);
+                        } catch (firebaseError) {
+                            console.log('⚠️ Erro na sincronização Firebase:', firebaseError.message);
+                            // Continua funcionando localmente
+                        }
+                    } else {
+                        console.log('ℹ️ Firebase não disponível, apenas local');
                     }
+                    
+                    console.log('✅ Incremento concluído com sucesso!');
                     
                 } catch (error) {
                     console.log('❌ Erro ao incrementar:', error.message);
                     // Fallback: incrementa mesmo com erro
                     this.count++;
                     this.displayCounter();
+                    console.log('🔄 Fallback executado, contador:', this.count);
                 }
             }
             
@@ -404,7 +422,16 @@
             setupEventListeners() {
                 const subscribeButton = document.getElementById('subscribeBtn');
                 if (subscribeButton) {
-                    subscribeButton.addEventListener('click', () => this.increment());
+                    // Remove listeners antigos se houver
+                    subscribeButton.removeEventListener('click', this.boundIncrement);
+                    
+                    // Cria novo listener
+                    this.boundIncrement = () => this.increment();
+                    subscribeButton.addEventListener('click', this.boundIncrement);
+                    
+                    console.log('✅ Event listener configurado para o botão Assinar');
+                } else {
+                    console.error('❌ Botão subscribeBtn não encontrado!');
                 }
             }
         }
