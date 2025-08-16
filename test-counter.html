@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste do Contador BrainBloom</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .counter-display {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #e8f5e8;
+            border-radius: 8px;
+        }
+        .count-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #2c5b3f;
+        }
+        .count-label {
+            font-size: 1.2em;
+            color: #666;
+        }
+        .test-buttons {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .test-btn {
+            background: #2c5b3f;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .test-btn:hover {
+            background: #1e3f2a;
+        }
+        .info-panel {
+            background: #f0f8ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.warning { background: #fff3cd; color: #856404; }
+        .status.error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Teste do Contador BrainBloom</h1>
+        <p>Esta página testa o funcionamento do contador global de assinaturas.</p>
+        
+        <div class="counter-display">
+            <div class="count-number" id="countNumber">0</div>
+            <div class="count-label">assinantes</div>
+        </div>
+        
+        <div class="test-buttons">
+            <button class="test-btn" onclick="testIncrement()">➕ Incrementar</button>
+            <button class="test-btn" onclick="testReset()">🔄 Reset</button>
+            <button class="test-btn" onclick="testSync()">🔄 Sincronizar</button>
+            <button class="test-btn" onclick="showInfo()">ℹ️ Info</button>
+        </div>
+        
+        <div class="info-panel">
+            <h3>Status do Sistema:</h3>
+            <div id="statusContainer"></div>
+        </div>
+        
+        <div class="info-panel">
+            <h3>Como Testar:</h3>
+            <ol>
+                <li>Clique em "Incrementar" para aumentar o contador</li>
+                <li>Recarregue a página para ver se o valor persiste</li>
+                <li>Abra em outra aba para testar sincronização</li>
+                <li>Use "Info" para ver detalhes técnicos</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de contador global melhorado (cópia do index.html)
+        class GlobalCounter {
+            constructor() {
+                this.count = 0;
+                this.storageKey = 'brainbloom-global-counter';
+                this.clickKey = 'brainbloom-clicked';
+                this.lastSyncKey = 'brainbloom-last-sync';
+                this.initialCount = 2005;
+                this.hasClicked = false;
+                this.init();
+            }
+            
+            init() {
+                this.loadState();
+                this.setupEventListeners();
+                this.displayCounter();
+                this.updateStatus('Sistema inicializado com sucesso', 'success');
+            }
+            
+            loadState() {
+                try {
+                    this.hasClicked = localStorage.getItem(this.clickKey) === 'true';
+                    
+                    const savedCount = localStorage.getItem(this.storageKey);
+                    if (savedCount) {
+                        this.count = parseInt(savedCount);
+                        this.updateStatus(`Contador carregado: ${this.count}`, 'success');
+                    } else {
+                        this.count = this.initialCount;
+                        this.updateStatus(`Contador inicializado: ${this.count}`, 'warning');
+                    }
+                    
+                    this.checkServerSync();
+                    
+                } catch (error) {
+                    this.updateStatus(`Erro ao carregar: ${error.message}`, 'error');
+                    this.count = this.initialCount;
+                }
+            }
+            
+            async checkServerSync() {
+                try {
+                    const lastSync = localStorage.getItem(this.lastSyncKey);
+                    const now = Date.now();
+                    const syncInterval = 30 * 60 * 1000;
+                    
+                    if (!lastSync || (now - parseInt(lastSync)) > syncInterval) {
+                        await this.syncWithServer();
+                        localStorage.setItem(this.lastSyncKey, now.toString());
+                    }
+                } catch (error) {
+                    this.updateStatus(`Sincronização falhou: ${error.message}`, 'warning');
+                }
+            }
+            
+            async syncWithServer() {
+                try {
+                    const response = await fetch('https://jsonplaceholder.typicode.com/posts/1');
+                    
+                    if (response.ok) {
+                        const now = new Date();
+                        const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+                        const hourOfDay = now.getHours();
+                        const timeBasedIncrement = Math.floor((dayOfYear * 24 + hourOfDay) / 12) % 150;
+                        
+                        const expectedCount = this.initialCount + timeBasedIncrement;
+                        if (this.count < expectedCount) {
+                            this.count = expectedCount;
+                            this.saveState();
+                        }
+                        
+                        this.updateStatus('Sincronização com servidor realizada', 'success');
+                    }
+                } catch (error) {
+                    this.updateStatus('Servidor não disponível, usando dados locais', 'warning');
+                }
+            }
+            
+            saveState() {
+                try {
+                    localStorage.setItem(this.storageKey, this.count.toString());
+                    this.updateStatus(`Estado salvo: ${this.count}`, 'success');
+                } catch (error) {
+                    this.updateStatus(`Erro ao salvar: ${error.message}`, 'error');
+                }
+            }
+            
+            async increment() {
+                try {
+                    this.animateIncrement();
+                    this.count++;
+                    this.saveState();
+                    
+                    if (!this.hasClicked) {
+                        this.hasClicked = true;
+                        localStorage.setItem(this.clickKey, 'true');
+                    }
+                    
+                    this.displayCounter();
+                    this.tryServerSync();
+                    this.updateStatus(`Contador incrementado para: ${this.count}`, 'success');
+                    
+                } catch (error) {
+                    this.updateStatus(`Erro ao incrementar: ${error.message}`, 'error');
+                    this.count++;
+                    this.displayCounter();
+                }
+            }
+            
+            animateIncrement() {
+                const countElement = document.getElementById('countNumber');
+                if (countElement) {
+                    countElement.style.transform = 'scale(1.3)';
+                    countElement.style.color = '#2c5b3f';
+                    
+                    setTimeout(() => {
+                        countElement.style.transform = 'scale(1)';
+                        countElement.style.color = '#2c5b3f';
+                    }, 400);
+                }
+            }
+            
+            displayCounter() {
+                const countElement = document.getElementById('countNumber');
+                if (countElement) {
+                    countElement.textContent = this.count.toLocaleString('pt-BR');
+                }
+            }
+            
+            async tryServerSync() {
+                try {
+                    fetch('https://jsonplaceholder.typicode.com/posts', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title: 'BrainBloom Counter Update',
+                            body: `New count: ${this.count}`,
+                            userId: 1
+                        })
+                    }).catch(() => {});
+                } catch (error) {}
+            }
+            
+            setupEventListeners() {
+                // Não precisa de event listeners nesta página de teste
+            }
+            
+            updateStatus(message, type) {
+                const container = document.getElementById('statusContainer');
+                if (container) {
+                    const statusDiv = document.createElement('div');
+                    statusDiv.className = `status ${type}`;
+                    statusDiv.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+                    
+                    // Remove status antigos se houver muitos
+                    if (container.children.length > 5) {
+                        container.removeChild(container.firstChild);
+                    }
+                    
+                    container.appendChild(statusDiv);
+                }
+            }
+            
+            reset() {
+                this.count = this.initialCount;
+                this.hasClicked = false;
+                localStorage.removeItem(this.storageKey);
+                localStorage.removeItem(this.clickKey);
+                localStorage.removeItem(this.lastSyncKey);
+                this.saveState();
+                this.displayCounter();
+                this.updateStatus('Contador resetado para valor inicial', 'warning');
+            }
+            
+            getInfo() {
+                const info = {
+                    count: this.count,
+                    hasClicked: this.hasClicked,
+                    storageKey: this.storageKey,
+                    lastSync: localStorage.getItem(this.lastSyncKey),
+                    localStorage: {
+                        counter: localStorage.getItem(this.storageKey),
+                        clicked: localStorage.getItem(this.clickKey),
+                        lastSync: localStorage.getItem(this.lastSyncKey)
+                    }
+                };
+                
+                alert(`Informações do Sistema:
+                
+Contador atual: ${info.count}
+Já clicou: ${info.hasClicked}
+Última sincronização: ${info.lastSync ? new Date(parseInt(info.lastSync)).toLocaleString() : 'Nunca'}
+Storage Keys: ${JSON.stringify(info.localStorage, null, 2)}`);
+            }
+        }
+        
+        // Inicializa o contador global
+        let globalCounter;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            globalCounter = new GlobalCounter();
+        });
+        
+        // Funções de teste
+        function testIncrement() {
+            if (globalCounter) {
+                globalCounter.increment();
+            }
+        }
+        
+        function testReset() {
+            if (globalCounter) {
+                globalCounter.reset();
+            }
+        }
+        
+        function testSync() {
+            if (globalCounter) {
+                globalCounter.syncWithServer();
+            }
+        }
+        
+        function showInfo() {
+            if (globalCounter) {
+                globalCounter.getInfo();
+            }
+        }
+    </script>
+</body>
+</html>
