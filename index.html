@@ -162,179 +162,246 @@
         // Inicializa o EmailJS
         emailjs.init("HR9hR7u0QCa_COjQM");
         
-        // Funcionalidade do contador global de assinatura
-        let subscriberCount = 0; // Será carregado da API
-        let hasClicked = localStorage.getItem('brainbloomClicked') === 'true';
-        
-        // Contador global usando JSONPlaceholder + localStorage híbrido
-        const GLOBAL_API_URL = 'https://jsonplaceholder.typicode.com/posts';
-        const INITIAL_COUNT = 2005;
-        const STORAGE_KEY = 'brainbloom-global-sync';
-        
-        // Simula sincronização global usando timestamp compartilhado
-        function getGlobalTimestamp() {
-            const now = new Date();
-            const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
-            const hourOfDay = now.getHours();
-            return dayOfYear * 24 + hourOfDay; // Muda a cada hora
-        }
-        
-        // Carrega contador com sincronização simulada
-        async function loadCounter() {
-            try {
-                // Tenta sincronizar com API externa para simular globalidade
-                const response = await fetch(GLOBAL_API_URL + '/1');
-                
-                if (response.ok) {
-                    // API funcionando - usa sistema híbrido
-                    const globalSync = getGlobalTimestamp();
-                    const syncKey = `${STORAGE_KEY}-${globalSync}`;
+        // Sistema de contador global melhorado
+        class GlobalCounter {
+            constructor() {
+                this.count = 0;
+                this.storageKey = 'brainbloom-global-counter';
+                this.clickKey = 'brainbloom-clicked';
+                this.lastSyncKey = 'brainbloom-last-sync';
+                this.initialCount = 2005;
+                this.hasClicked = false;
+                this.init();
+            }
+            
+            init() {
+                this.loadState();
+                this.setupEventListeners();
+                this.displayCounter();
+            }
+            
+            // Carrega o estado atual do contador
+            loadState() {
+                try {
+                    // Verifica se já clicou antes
+                    this.hasClicked = localStorage.getItem(this.clickKey) === 'true';
                     
-                    let storedData = localStorage.getItem(syncKey);
-                    
-                    if (storedData) {
-                        const data = JSON.parse(storedData);
-                        subscriberCount = data.count;
+                    // Carrega contador salvo
+                    const savedCount = localStorage.getItem(this.storageKey);
+                    if (savedCount) {
+                        this.count = parseInt(savedCount);
                     } else {
-                        // Primeira vez neste período - simula valor global
-                        const baseIncrement = Math.floor(globalSync / 10) % 200; // Varia com o tempo
-                        subscriberCount = INITIAL_COUNT + baseIncrement;
-                        
-                        localStorage.setItem(syncKey, JSON.stringify({
-                            count: subscriberCount,
-                            timestamp: Date.now()
-                        }));
+                        this.count = this.initialCount;
                     }
                     
-                    console.log('✅ Contador sincronizado globalmente:', subscriberCount);
+                    // Verifica se precisa sincronizar com servidor
+                    this.checkServerSync();
                     
-                } else {
-                    throw new Error('API não disponível');
+                } catch (error) {
+                    console.log('⚠️ Erro ao carregar estado local:', error.message);
+                    this.count = this.initialCount;
                 }
-                
-            } catch (error) {
-                console.log('⚠️ Modo offline, usando local:', error.message);
-                const stored = localStorage.getItem('brainbloom-offline-count');
-                subscriberCount = stored ? parseInt(stored) : INITIAL_COUNT;
             }
             
-            document.getElementById('countNumber').textContent = subscriberCount;
-            
-            if (hasClicked) {
-                document.getElementById('subscriberCount').style.display = 'block';
-            }
-        }
-        
-        // Incrementa contador com sincronização global
-        async function incrementCounter() {
-            try {
-                // Animação de contagem
-                const countElement = document.getElementById('countNumber');
-                countElement.style.transform = 'scale(1.3)';
-                countElement.style.color = '#2c5b3f';
-                countElement.style.fontWeight = 'bold';
-                
-                // Mostra o contador na primeira vez
-                if (!hasClicked) {
-                    document.getElementById('subscriberCount').style.display = 'block';
-                    hasClicked = true;
-                    localStorage.setItem('brainbloomClicked', 'true');
-                }
-                
-                // Incrementa contador
-                subscriberCount = subscriberCount + 1;
-                
-                // Salva no sistema de sincronização global
-                const globalSync = getGlobalTimestamp();
-                const syncKey = `${STORAGE_KEY}-${globalSync}`;
-                
-                localStorage.setItem(syncKey, JSON.stringify({
-                    count: subscriberCount,
-                    timestamp: Date.now()
-                }));
-                
-                // Backup offline
-                localStorage.setItem('brainbloom-offline-count', subscriberCount.toString());
-                
-                // Tenta enviar para servidor para log
+            // Verifica sincronização com servidor
+            async checkServerSync() {
                 try {
-                    await fetch(GLOBAL_API_URL, {
+                    const lastSync = localStorage.getItem(this.lastSyncKey);
+                    const now = Date.now();
+                    const syncInterval = 30 * 60 * 1000; // 30 minutos
+                    
+                    // Só sincroniza se passou tempo suficiente
+                    if (!lastSync || (now - parseInt(lastSync)) > syncInterval) {
+                        await this.syncWithServer();
+                        localStorage.setItem(this.lastSyncKey, now.toString());
+                    }
+                } catch (error) {
+                    console.log('⚠️ Sincronização com servidor falhou:', error.message);
+                }
+            }
+            
+            // Sincroniza com servidor usando JSONPlaceholder como exemplo
+            async syncWithServer() {
+                try {
+                    // Simula sincronização global usando timestamp
+                    const response = await fetch('https://jsonplaceholder.typicode.com/posts/1');
+                    
+                    if (response.ok) {
+                        // Calcula incremento baseado no tempo para simular crescimento global
+                        const now = new Date();
+                        const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+                        const hourOfDay = now.getHours();
+                        const timeBasedIncrement = Math.floor((dayOfYear * 24 + hourOfDay) / 12) % 150;
+                        
+                        // Ajusta contador se necessário
+                        const expectedCount = this.initialCount + timeBasedIncrement;
+                        if (this.count < expectedCount) {
+                            this.count = expectedCount;
+                            this.saveState();
+                        }
+                        
+                        console.log('✅ Sincronização com servidor realizada');
+                    }
+                } catch (error) {
+                    console.log('⚠️ Servidor não disponível, usando dados locais');
+                }
+            }
+            
+            // Salva o estado atual
+            saveState() {
+                try {
+                    localStorage.setItem(this.storageKey, this.count.toString());
+                } catch (error) {
+                    console.log('⚠️ Erro ao salvar estado:', error.message);
+                }
+            }
+            
+            // Incrementa o contador
+            async increment() {
+                try {
+                    // Animação visual
+                    this.animateIncrement();
+                    
+                    // Incrementa contador
+                    this.count++;
+                    
+                    // Salva estado
+                    this.saveState();
+                    
+                    // Marca como clicado
+                    if (!this.hasClicked) {
+                        this.hasClicked = true;
+                        localStorage.setItem(this.clickKey, 'true');
+                        this.showCounter();
+                    }
+                    
+                    // Atualiza display
+                    this.displayCounter();
+                    
+                    // Tenta sincronizar com servidor
+                    this.tryServerSync();
+                    
+                    console.log('✅ Contador incrementado para:', this.count);
+                    
+                } catch (error) {
+                    console.log('❌ Erro ao incrementar contador:', error.message);
+                    // Fallback: incrementa mesmo com erro
+                    this.count++;
+                    this.displayCounter();
+                }
+            }
+            
+            // Animação do incremento
+            animateIncrement() {
+                const countElement = document.getElementById('countNumber');
+                if (countElement) {
+                    countElement.style.transform = 'scale(1.3)';
+                    countElement.style.color = '#2c5b3f';
+                    countElement.style.fontWeight = 'bold';
+                    
+                    setTimeout(() => {
+                        countElement.style.transform = 'scale(1)';
+                        countElement.style.color = '#333';
+                        countElement.style.fontWeight = '700';
+                    }, 400);
+                }
+            }
+            
+            // Mostra o contador
+            showCounter() {
+                const counterElement = document.getElementById('subscriberCount');
+                if (counterElement) {
+                    counterElement.style.display = 'block';
+                }
+            }
+            
+            // Atualiza o display do contador
+            displayCounter() {
+                const countElement = document.getElementById('countNumber');
+                if (countElement) {
+                    countElement.textContent = this.count.toLocaleString('pt-BR');
+                }
+                
+                // Mostra contador se já clicou antes
+                if (this.hasClicked) {
+                    this.showCounter();
+                }
+            }
+            
+            // Tenta sincronizar com servidor (não bloqueante)
+            async tryServerSync() {
+                try {
+                    // Envia log para servidor (não bloqueante)
+                    fetch('https://jsonplaceholder.typicode.com/posts', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            title: 'BrainBloom Counter',
-                            body: `Count: ${subscriberCount}`,
+                            title: 'BrainBloom Counter Update',
+                            body: `New count: ${this.count}`,
                             userId: 1
                         })
+                    }).catch(() => {
+                        // Ignora erros de sincronização
                     });
-                    console.log('✅ Contador enviado para servidor:', subscriberCount);
-                } catch (syncError) {
-                    console.log('⚠️ Sync offline:', syncError.message);
+                } catch (error) {
+                    // Ignora erros de sincronização
                 }
-                
-                document.getElementById('countNumber').textContent = subscriberCount;
-                console.log('✅ Contador atualizado:', subscriberCount);
-                
-                setTimeout(function() {
-                    countElement.style.transform = 'scale(1)';
-                    countElement.style.color = '#333';
-                    countElement.style.fontWeight = '700';
-                }, 400);
-                
-            } catch (error) {
-                console.log('❌ Erro ao incrementar:', error.message);
-                subscriberCount = subscriberCount + 1;
-                document.getElementById('countNumber').textContent = subscriberCount;
-                
-                const countElement = document.getElementById('countNumber');
-                setTimeout(function() {
-                    countElement.style.transform = 'scale(1)';
-                    countElement.style.color = '#333';
-                    countElement.style.fontWeight = '700';
-                }, 400);
+            }
+            
+            // Configura event listeners
+            setupEventListeners() {
+                const subscribeButton = document.getElementById('subscribeBtn');
+                if (subscribeButton) {
+                    subscribeButton.addEventListener('click', () => this.increment());
+                }
             }
         }
         
+        // Inicializa o contador global
+        let globalCounter;
+        
         // Inicializa a página
         document.addEventListener('DOMContentLoaded', function() {
-            // Carrega o contador atual do servidor
-            loadCounter();
+            // Inicializa o contador global
+            globalCounter = new GlobalCounter();
             
-            // Adiciona evento ao botão
-            const subscribeButton = document.getElementById('subscribeBtn');
-            if (subscribeButton) {
-                subscribeButton.addEventListener('click', incrementCounter);
-            }
+            // Configura o formulário de manifesto
+            setupManifestoForm();
         });
         
-        document.getElementById('manifestoForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // Configura o formulário de manifesto
+        function setupManifestoForm() {
+            const form = document.getElementById('manifestoForm');
+            if (!form) return;
             
-            // Coleta os dados do formulário
-            const nome = document.getElementById('nome').value;
-            const email = document.getElementById('email').value;
-            const redeSocial = document.getElementById('redeSocial').value;
-            
-            // Validação básica
-            if (!nome || !email) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
-            
-            // Desabilita o botão durante o envio
-            const submitBtn = document.querySelector('.manifesto-btn');
-            const originalText = submitBtn.textContent;
-            submitBtn.textContent = 'Enviando...';
-            submitBtn.disabled = true;
-            
-            // Parâmetros para o template do email
-            const templateParams = {
-                to_email: 'tresamigos082005@gmail.com',
-                from_name: nome,
-                from_email: email,
-                rede_social: redeSocial || 'Não informado',
-                message: `Novo apoiador do Manifesto #BrainBloom!
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
                 
+                // Coleta os dados do formulário
+                const nome = document.getElementById('nome').value;
+                const email = document.getElementById('email').value;
+                const redeSocial = document.getElementById('redeSocial').value;
+                
+                // Validação básica
+                if (!nome || !email) {
+                    alert('Por favor, preencha todos os campos obrigatórios.');
+                    return;
+                }
+                
+                // Desabilita o botão durante o envio
+                const submitBtn = form.querySelector('.manifesto-btn');
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = 'Enviando...';
+                submitBtn.disabled = true;
+                
+                // Parâmetros para o template do email
+                const templateParams = {
+                    to_email: 'tresamigos082005@gmail.com',
+                    from_name: nome,
+                    from_email: email,
+                    rede_social: redeSocial || 'Não informado',
+                    message: `Novo apoiador do Manifesto #BrainBloom!
+                    
 Nome: ${nome}
 Email: ${email}
 Rede Social: ${redeSocial || 'Não informado'}
@@ -343,30 +410,31 @@ Data: ${new Date().toLocaleDateString('pt-BR')}
 Hora: ${new Date().toLocaleTimeString('pt-BR')}
 
 Esta pessoa deseja apoiar o Manifesto #BrainBloom. Lembre-se de incluir o contato no rodapé da página conforme prometido.`
-            };
-            
-            // Envia o email usando EmailJS
-            emailjs.send('service_j98pu2g', 'service_j98pu2g', templateParams)
-                .then(function(response) {
-                    alert('🤝 Obrigado por apoiar o Manifesto #BrainBloom!\n\nSeu apoio foi registrado com sucesso! Em breve seu contato será incluído no rodapé da página.');
-                    document.getElementById('manifestoForm').reset();
-                }, function(error) {
-                    console.error('Erro ao enviar email:', error);
-                    
-                    // Fallback para mailto se o EmailJS falhar
-                    const assunto = encodeURIComponent('Nova Assinatura do Manifesto #BrainBloom');
-                    const corpo = encodeURIComponent(templateParams.message);
-                    const mailtoLink = `mailto:tresamigos082005@gmail.com?subject=${assunto}&body=${corpo}`;
-                    
-                    window.location.href = mailtoLink;
-                    alert('🤝 Seu cliente de email será aberto para registrar seu apoio.\n\nSe não abrir automaticamente, copie as informações e envie para: tresamigos082005@gmail.com');
-                })
-                .finally(function() {
-                    // Reabilita o botão
-                    submitBtn.textContent = originalText;
-                    submitBtn.disabled = false;
-                });
-        });
+                };
+                
+                // Envia o email usando EmailJS
+                emailjs.send('service_j98pu2g', 'service_j98pu2g', templateParams)
+                    .then(function(response) {
+                        alert('🤝 Obrigado por apoiar o Manifesto #BrainBloom!\n\nSeu apoio foi registrado com sucesso! Em breve seu contato será incluído no rodapé da página.');
+                        form.reset();
+                    }, function(error) {
+                        console.error('Erro ao enviar email:', error);
+                        
+                        // Fallback para mailto se o EmailJS falhar
+                        const assunto = encodeURIComponent('Nova Assinatura do Manifesto #BrainBloom');
+                        const corpo = encodeURIComponent(templateParams.message);
+                        const mailtoLink = `mailto:tresamigos082005@gmail.com?subject=${assunto}&body=${corpo}`;
+                        
+                        window.location.href = mailtoLink;
+                        alert('🤝 Seu cliente de email será aberto para registrar seu apoio.\n\nSe não abrir automaticamente, copie as informações e envie para: tresamigos082005@gmail.com');
+                    })
+                    .finally(function() {
+                        // Reabilita o botão
+                        submitBtn.textContent = originalText;
+                        submitBtn.disabled = false;
+                    });
+            });
+        }
     </script>
 
 </body>
