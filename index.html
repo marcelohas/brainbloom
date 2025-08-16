@@ -222,7 +222,7 @@
                     
                     // Inicializa Firebase
                     const app = window.firebase.initializeApp(this.firebaseConfig);
-                    const database = getDatabase(app);
+                    const database = window.getDatabase(app);
                     
                     // Cria referência para o contador
                     this.counterRef = window.firebaseRef(database, 'counter');
@@ -251,6 +251,7 @@
                             set,
                             once
                         };
+                        window.getDatabase = getDatabase;
                         window.firebaseRef = ref;
                         window.firebaseOnValue = onValue;
                         window.firebaseSet = set;
